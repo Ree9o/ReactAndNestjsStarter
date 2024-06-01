@@ -21,7 +21,15 @@ export class UserResolver {
 
   @Query(() => UserModel, { nullable: true })
   @UseGuards(JwtAuthGuard)
-  async getUser(@Args() getUserArgs: GetUserArgs): Promise<User> {
+  async getUser(
+    @Args() getUserArgs: GetUserArgs,
+    @Context() context: any,
+  ): Promise<User> {
+    const req = context.req; // HTTPリクエストを直接取得
+    const userRequestingEmail = req.user.email;
+    if (userRequestingEmail !== getUserArgs.email) {
+      throw new UnauthorizedException('You can only get your own account.');
+    }
     return await this.userService.getUser(getUserArgs.email);
   }
 
