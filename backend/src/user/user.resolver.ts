@@ -1,11 +1,12 @@
-import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
+import { Args, Mutation, Resolver, Query, Context } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { User } from '@prisma/client';
 import { User as UserModel } from './models/user.model';
-import { UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateUserInput } from './dto/createUser.dto';
-import { GetUserArgs } from './dto/getUser.dto';
+import { GetUserArgs } from './dto/getUser.args';
+import { UnauthorizedException, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { DeleteUserArgs } from './dto/deteleUser.args';
 
 @Resolver()
 export class UserResolver {
@@ -20,10 +21,21 @@ export class UserResolver {
 
   @Query(() => UserModel, { nullable: true })
   @UseGuards(JwtAuthGuard)
-  async getUser(
-    @Args() //@ArgsType()をDTOで使用している場合はArgsデコレーターの引数に名前は必要ない
-    getUserArgs: GetUserArgs,
-  ): Promise<User> {
+  async getUser(@Args() getUserArgs: GetUserArgs): Promise<User> {
     return await this.userService.getUser(getUserArgs.email);
+  }
+
+  @Query(() => UserModel)
+  @UseGuards(JwtAuthGuard)
+  async deleteUser(
+    @Args() deleteUserArgs: DeleteUserArgs,
+    @Context() context: any,
+  ): Promise<User> {
+    const req = context.req; // HTTPリクエストを直接取得
+    const userRequestingId = req.user.id; // JWTからユーザーIDを取得
+    if (userRequestingId !== deleteUserArgs.id) {
+      throw new UnauthorizedException('You can only delete your own account.');
+    }
+    return await this.userService.deleteUser(deleteUserArgs.id);
   }
 }

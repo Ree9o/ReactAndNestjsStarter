@@ -9,7 +9,7 @@ export class GqlAuthGuard extends AuthGuard('local') {
   getRequest(context: ExecutionContext) {
     const createGqlContext = GqlExecutionContext.create(context);
     const request = createGqlContext.getContext();
-    request.body = createGqlContext.getArgs().SignInInput;
+    request.body = createGqlContext.getArgs().signInInput;
     return request;
   }
 }

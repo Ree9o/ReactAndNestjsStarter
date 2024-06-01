@@ -1,9 +1,9 @@
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
+import { SignInResponse } from './dto/signInResponse';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from './guards/gql-auth.guard';
-import { SignInResponse } from './dto/signInResponce.dto';
-import { SignInInput } from './dto/signIn.dto';
+import { SignInInput } from './dto/signIn.input';
 
 @Resolver()
 export class AuthResolver {

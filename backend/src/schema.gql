@@ -22,6 +22,7 @@ type SignInResponse {
 
 type Query {
   getUser(email: String!): User
+  deleteUser(id: Int!): User!
 }
 
 type Mutation {
